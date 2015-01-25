@@ -1,0 +1,4 @@
+- Add items to item trade
+- Add difference calculator to item trader
+
+- Write code to find firesale items in Catch

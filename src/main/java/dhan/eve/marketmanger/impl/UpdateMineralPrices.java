@@ -12,7 +12,7 @@ public class UpdateMineralPrices {
     public static void main(String[] args) throws IOException, JAXBException{
         Minerals min = new Minerals();
         
-        String file = "C:\\Users\\David\\Eve\\ShipManufacturing.xlsx";
+        String file = "C:\\Users\\David\\Dropbox\\Eve\\ShipManufacturing.xlsx";
         
         min.updateMineralPrices(file, Systems.AMARR);
         

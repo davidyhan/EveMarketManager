@@ -18,11 +18,11 @@ import dhan.eve.marketmanager.evecentral.marketstat.Type;
 import dhan.eve.marketmanger.ids.Items;
 import dhan.eve.marketmanger.impl.EveCentral;
 
+@SuppressWarnings("restriction")
 public class Minerals {
 
     EveCentral marketStat = new EveCentral(EveCentral.marketStatBase);
 
-    @SuppressWarnings("restriction")
     public void updateMineralPrices(String file, int system) throws IOException, JAXBException {
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
