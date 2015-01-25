@@ -1,4 +1,11 @@
+NEW CODE
 - Add items to item trade
 - Add difference calculator to item trader
 
 - Write code to find firesale items in Catch
+
+REFACTORING
+- change the update minerals code to look less ugly
+
+UNIT TESTS
+- Write unit tests
