@@ -1,0 +1,59 @@
+   <quicklook>
+      <item>34</item>
+      <itemname>Tritanium</itemname>
+      <regions />
+      <hours>360</hours>
+      <minqty>10001</minqty>
+      <sell_orders>
+         <order id="3914391121">
+            <region>10000032</region>
+            <station>60011866</station>
+            <station_name>Dodixie IX - Moon 20 - Federation Navy Assembly Plant</station_name>
+            <security>0.9</security>
+            <range>32767</range>
+            <price>6.08</price>
+            <vol_remain>3538080</vol_remain>
+            <min_volume>1</min_volume>
+            <expires>2015-02-01</expires>
+            <reported_time>01-02 20:44:52</reported_time>
+         </order>
+         <order id="3914331150">
+            <region>10000032</region>
+            <station>60011866</station>
+            <station_name>Dodixie IX - Moon 20 - Federation Navy Assembly Plant</station_name>
+            <security>0.9</security>
+            <range>32767</range>
+            <price>6.09</price>
+            <vol_remain>236542042</vol_remain>
+            <min_volume>1</min_volume>
+            <expires>2015-04-02</expires>
+            <reported_time>01-02 20:44:52</reported_time>
+         </order>
+      </sell_orders>
+      <buy_orders>
+         <order id="3914272161">
+            <region>10000032</region>
+            <station>60011866</station>
+            <station_name>Dodixie IX - Moon 20 - Federation Navy Assembly Plant</station_name>
+            <security>0.9</security>
+            <range>-1</range>
+            <price>5.99</price>
+            <vol_remain>134361962</vol_remain>
+            <min_volume>1</min_volume>
+            <expires>2015-01-03</expires>
+            <reported_time>01-02 20:44:52</reported_time>
+         </order>
+         <order id="3914189978">
+            <region>10000032</region>
+            <station>60011866</station>
+            <station_name>Dodixie IX - Moon 20 - Federation Navy Assembly Plant</station_name>
+            <security>0.9</security>
+            <range>-1</range>
+            <price>5.98</price>
+            <vol_remain>300000000</vol_remain>
+            <min_volume>1</min_volume>
+            <expires>2015-01-09</expires>
+            <reported_time>01-02 20:44:52</reported_time>
+         </order>
+      </buy_orders>
+   </quicklook>
