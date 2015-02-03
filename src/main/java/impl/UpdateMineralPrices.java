@@ -1,16 +1,11 @@
 package impl;
 
 import ids.Systems;
-
-import java.io.IOException;
-
-import javax.xml.bind.JAXBException;
-
 import trading.Minerals;
 
 public class UpdateMineralPrices {
     
-    public static void main(String[] args) throws IOException, JAXBException{
+    public static void main(String[] args) throws Exception{
         Minerals min = new Minerals();
         
         String file = "C:\\Users\\David\\Dropbox\\Eve\\ShipManufacturing.xlsx";
