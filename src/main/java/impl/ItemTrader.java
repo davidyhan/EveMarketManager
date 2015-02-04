@@ -6,8 +6,14 @@ public class ItemTrader {
 
     public static void main(String[] args) throws Exception {
         String filePath = "C:\\Users\\David\\Dropbox\\Eve\\itemTrader.xlsx";
+        String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\items.txt";
 
         ItemTrading itemTrading = new ItemTrading();
-        itemTrading.updateItemSheet(filePath);
+
+        // itemTrading.updateSingleItemPrice(filePath, 15);
+        //itemTrading.updateItemSheet(filePath, dbPath);
+        
+        itemTrading.calculateProfitMargins(filePath);
+        System.out.println("Fin");
     }
 }

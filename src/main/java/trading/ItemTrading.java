@@ -7,9 +7,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -34,7 +37,10 @@ public class ItemTrading {
         systems.add(Systems.AMARR);
     }
 
-    public void updateItemSheet(String file) throws Exception {
+    public void updateItemSheet(String file, String dbPath) throws Exception {
+        // Make sure all the items have their id's bound
+        bindItemIds(file, dbPath);
+
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
         XSSFSheet sheet = wb.getSheetAt(0);
@@ -56,8 +62,30 @@ public class ItemTrading {
 
     }
 
+    public void updateSingleItemPrice(String file, int rowNum) throws Exception {
+        FileInputStream fsIP = new FileInputStream(new File(file));
+        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        fsIP.close();
+
+        String combined = sheet.getRow(rowNum).getCell(0).getStringCellValue();
+
+        String itemName = combined.substring(0, combined.indexOf("-")).trim();
+        Integer itemId = Integer.parseInt(combined.substring(combined.indexOf("-") + 1).trim());
+
+        updateItemPriceForAllSystems(itemName, itemId, sheet);
+
+        FileOutputStream output_file = new FileOutputStream(new File(file));
+
+        wb.write(output_file); // write changes
+
+        output_file.close();
+
+        wb.close();
+    }
+
     // Updates the item from for each System on the item trading excel sheet
-    public void updateItemPriceForAllSystems(String itemName, Integer itemId, XSSFSheet sheet) throws Exception{
+    public void updateItemPriceForAllSystems(String itemName, Integer itemId, XSSFSheet sheet) throws Exception {
         System.out.println("Item Name: " + itemName + ", Item Id: " + itemId);
 
         Coordinate c = getItemCoordinate(itemName, sheet);
@@ -72,18 +100,21 @@ public class ItemTrading {
             EveCentralApi item = quickLook.unmarshal(quickLook.queryItemBySystem(itemId, system), EveCentralApi.class);
             SellOrders sellOrders = item.getQuick().getSellOrder();
 
-            Double lowestPrice = getLowestSellPrice(sellOrders);
-            System.out.println("Lowest Price: " + lowestPrice);
+            // Checks to make sure there exist sell orders at the target system
+            if (sellOrders.getListOrders() != null) {
 
-            // TODO Possibly use method for this
-            Cell writeSpot = sheet.getRow(c.getX()).getCell(i + 1);
+                Double lowestPrice = getLowestSellPrice(sellOrders);
 
-            if (writeSpot == null) {
-                writeSpot = sheet.getRow(c.getX()).createCell(i + 1);
-                writeSpot.setCellType(Cell.CELL_TYPE_NUMERIC);
+                // TODO Possibly use method for this
+                Cell writeSpot = sheet.getRow(c.getX()).getCell(i + 2);
+
+                if (writeSpot == null) {
+                    writeSpot = sheet.getRow(c.getX()).createCell(i + 2);
+                    writeSpot.setCellType(Cell.CELL_TYPE_NUMERIC);
+                }
+
+                writeSpot.setCellValue(lowestPrice);
             }
-
-            writeSpot.setCellValue(lowestPrice);
         }
     }
 
@@ -111,7 +142,7 @@ public class ItemTrading {
     public Coordinate getItemCoordinate(String itemName, XSSFSheet sheet) {
         for (Row r : sheet) {
             for (Cell c : r) {
-                if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().equals(itemName)) {
+                if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().contains(itemName)) {
                     return new Coordinate(c.getRowIndex(), c.getColumnIndex());
                 }
             }
@@ -129,14 +160,14 @@ public class ItemTrading {
             // Makes sure the cell is not null + is type string + does not contains *
             if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
                 String combined = c.getStringCellValue();
-                int delimiter = combined.indexOf("-");
+                int delimiter = combined.indexOf(" - ");
 
                 if (!combined.contains(" - ")) {
                     throw new ExcelException(combined + " does not contain a - delimiter or is incorrectly formatted");
                 }
 
                 String itemName = combined.substring(0, delimiter).trim();
-                Integer itemId = Integer.parseInt(combined.substring(delimiter + 1).trim());
+                Integer itemId = Integer.parseInt(combined.substring(delimiter + 3).trim());
 
                 items.put(itemName, itemId);
             }
@@ -144,14 +175,90 @@ public class ItemTrading {
 
         return items;
     }
-    
-    public XSSFSheet parseExcel(String filePath) throws IOException{
-        FileInputStream fsIP = new FileInputStream(new File(filePath));
+
+    public void bindItemIds(String itemTradePath, String itemDBPath) throws Exception {
+        List<String> itemDB = Files.readAllLines(new File(itemDBPath).toPath(), Charset.defaultCharset());
+
+        FileInputStream fsIP = new FileInputStream(new File(itemTradePath));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
         XSSFSheet sheet = wb.getSheetAt(0);
         fsIP.close();
+
+        // Goes through the first column of each row (only item names + id's should be on this row)
+        for (Row r : sheet) {
+            Cell c = r.getCell(0);
+
+            // Filters out titles + item who already have id's binded
+            if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING) {
+                String itemName = c.getStringCellValue();
+                if (!itemName.contains("*") && !itemName.contains(" - ")) {
+                    Integer itemId = getItemIdFromDB(itemDB, itemName);
+
+                    if (itemId == -1) {
+                        throw new ExcelException(itemName + " does not exist in the item database");
+                    }
+
+                    String newValue = itemName + " - " + itemId;
+
+                    System.out.println(newValue);
+
+                    c.setCellValue(newValue);
+                }
+            }
+        }
+
+        FileOutputStream output_file = new FileOutputStream(new File(itemTradePath));
+        wb.write(output_file); // write changes
+        output_file.close();
         wb.close();
-        
-        return sheet;
+    }
+
+    public Integer getItemIdFromDB(List<String> db, String itemName) {
+        Integer id = -1;
+
+        for (String s : db) {
+            if (s.contains(itemName)) {
+                id = Integer.parseInt(s.substring(0, s.indexOf("      ")).trim());
+                return id;
+            }
+        }
+
+        return id;
+    }
+
+    // Calculates the profit margins for items between GE and Amarr
+    public void calculateProfitMargins(String itemTradePath) throws IOException {
+        FileInputStream fsIP = new FileInputStream(new File(itemTradePath));
+        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        fsIP.close();
+
+        for (Row r : sheet) {
+            // gets the first cell to check if it's a item row
+            Cell c = r.getCell(0);
+            if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
+                if (r.getCell(2) != null && r.getCell(3) != null) {
+                    Double gePrice = r.getCell(2).getNumericCellValue();
+                    Double amarrPrice = r.getCell(3).getNumericCellValue();
+
+                    Double profitPercentage = ((gePrice - amarrPrice) / amarrPrice) * 100;
+
+                    Cell profitCell = r.getCell(1);
+
+                    if (profitCell == null) {
+                        profitCell = r.createCell(1);
+                    }
+
+                    profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                    profitCell.setCellValue(profitPercentage);
+                }
+
+            }
+        }
+
+        FileOutputStream output_file = new FileOutputStream(new File(itemTradePath));
+        wb.write(output_file); // write changes
+        output_file.close();
+        wb.close();
     }
 }

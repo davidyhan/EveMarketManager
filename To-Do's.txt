@@ -1,7 +1,6 @@
 NEW CODE
 - Add items to item trade
-- Add difference calculator to item trader
-
+- Add color coding for profit margins
 - Write code to find firesale items in Catch
 
 REFACTORING
