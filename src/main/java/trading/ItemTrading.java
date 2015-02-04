@@ -52,6 +52,8 @@ public class ItemTrading {
             updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
         }
 
+        calculateProfitMargins(file);
+
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
         wb.write(output_file); // write changes
