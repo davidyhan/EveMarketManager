@@ -10,10 +10,10 @@ public class ItemTrader {
 
         ItemTrading itemTrading = new ItemTrading();
 
-        // itemTrading.updateSingleItemPrice(filePath, 15);
-        //itemTrading.updateItemSheet(filePath, dbPath);
-        
-        itemTrading.calculateProfitMargins(filePath);
+        // itemTrading.updateSingleItemPrice(filePath, 91);
+        itemTrading.updateItemSheet(filePath, dbPath);
+
+        // itemTrading.calculateProfitMargins(filePath);
         System.out.println("Fin");
     }
 }

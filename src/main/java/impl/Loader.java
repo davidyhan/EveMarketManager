@@ -1,7 +1,8 @@
 package impl;
 
+import quicklook.EveCentralApi;
+import ids.Systems;
 
-@SuppressWarnings("restriction")
 public class Loader {
 
     static EveCentral quickLook;
@@ -11,8 +12,12 @@ public class Loader {
 
         quickLook = new EveCentral(EveCentral.quickLookBase);
         marketStat = new EveCentral(EveCentral.marketStatBase);
-        
-        String system = "AMARR";
-        
+
+        EveCentralApi query = quickLook.unmarshal(quickLook.queryItemBySystem(3025, Systems.AMARR), EveCentralApi.class);
+        System.out.println(quickLook.queryItemBySystem(2985, Systems.AMARR));
+        System.out.println(query.getQuick());
+
+        System.out.println("Fin");
+
     }
 }

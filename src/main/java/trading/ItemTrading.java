@@ -52,7 +52,7 @@ public class ItemTrading {
             updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
         }
 
-        calculateProfitMargins(file);
+        calculateProfitMargins(sheet, 0);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -220,7 +220,7 @@ public class ItemTrading {
 
         for (String s : db) {
             if (s.contains(itemName)) {
-                id = Integer.parseInt(s.substring(0, s.indexOf("      ")).trim());
+                id = Integer.parseInt(s.substring(0, s.indexOf("    ")).trim());
                 return id;
             }
         }
@@ -229,38 +229,30 @@ public class ItemTrading {
     }
 
     // Calculates the profit margins for items between GE and Amarr
-    public void calculateProfitMargins(String itemTradePath) throws IOException {
-        FileInputStream fsIP = new FileInputStream(new File(itemTradePath));
-        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
-        XSSFSheet sheet = wb.getSheetAt(0);
-        fsIP.close();
-
+    public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
         for (Row r : sheet) {
-            // gets the first cell to check if it's a item row
-            Cell c = r.getCell(0);
-            if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
-                if (r.getCell(2) != null && r.getCell(3) != null) {
-                    Double gePrice = r.getCell(2).getNumericCellValue();
-                    Double amarrPrice = r.getCell(3).getNumericCellValue();
+            if (r.getRowNum() >= start) {
+                // gets the first cell to check if it's a item row
+                Cell c = r.getCell(0);
+                if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
+                    if (r.getCell(2) != null && r.getCell(3) != null) {
+                        Double gePrice = r.getCell(2).getNumericCellValue();
+                        Double amarrPrice = r.getCell(3).getNumericCellValue();
 
-                    Double profitPercentage = ((gePrice - amarrPrice) / amarrPrice) * 100;
+                        Double profitPercentage = ((gePrice - amarrPrice) / amarrPrice) * 100;
 
-                    Cell profitCell = r.getCell(1);
+                        Cell profitCell = r.getCell(1);
 
-                    if (profitCell == null) {
-                        profitCell = r.createCell(1);
+                        if (profitCell == null) {
+                            profitCell = r.createCell(1);
+                        }
+
+                        profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                        profitCell.setCellValue(profitPercentage);
                     }
 
-                    profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
-                    profitCell.setCellValue(profitPercentage);
                 }
-
             }
         }
-
-        FileOutputStream output_file = new FileOutputStream(new File(itemTradePath));
-        wb.write(output_file); // write changes
-        output_file.close();
-        wb.close();
     }
 }

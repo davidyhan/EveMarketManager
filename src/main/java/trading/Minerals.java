@@ -73,7 +73,7 @@ public class Minerals {
     public Coordinate findMinerals(XSSFSheet sheet) {
         for (Row r : sheet) {
             for (Cell c : r) {
-                if ((c.getCellType() == Cell.CELL_TYPE_STRING) && c.getStringCellValue().equals("Minerals")) {
+                if ((c.getCellType() == Cell.CELL_TYPE_STRING) && c.getStringCellValue().equals("*Minerals")) {
                     return new Coordinate(c.getRowIndex(), c.getColumnIndex());
                 }
             }
