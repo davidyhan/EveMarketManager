@@ -71,4 +71,18 @@ public class ShipManufacturing {
             c.setCellValue(lowest);
         }
     }
+    
+    public Coordinate findMineralCost(String ship, XSSFSheet sheet){
+        String formattedName = ">"+ship;
+        
+        for(Row r: sheet){
+            for(Cell c: r){
+                if(c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().equals(formattedName)){
+                    return new Coordinate(r.getRowNum(), c.getColumnIndex());
+                }
+            }
+        }
+        
+        return null;
+    }
 }
