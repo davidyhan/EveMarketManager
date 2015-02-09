@@ -13,7 +13,6 @@ public class ItemTrader {
         // itemTrading.updateSingleItemPrice(filePath, 91);
         itemTrading.updateItemSheet(filePath, dbPath);
 
-        // itemTrading.calculateProfitMargins(filePath);
         System.out.println("Fin");
     }
 }
