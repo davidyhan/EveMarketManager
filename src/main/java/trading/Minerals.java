@@ -45,7 +45,7 @@ public class Minerals {
 
         MarketApi minerals = marketStat.queryMinerals(system);
 
-        MSSell trit_sell = getMineralSellOrder(minerals, Items.TRIT);
+        MSSell trit_sell = getMineralSellOrder(minerals, Items.TRITANIUM);
         MSSell pyer_sell = getMineralSellOrder(minerals, Items.PYERITE);
         MSSell mex_sell = getMineralSellOrder(minerals, Items.MEXALLON);
         MSSell iso_sell = getMineralSellOrder(minerals, Items.ISOGEN);

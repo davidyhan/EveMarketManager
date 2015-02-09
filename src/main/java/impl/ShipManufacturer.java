@@ -16,8 +16,8 @@ public class ShipManufacturer {
         String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\items.txt";
         
         //minerals.updateMineralPrices(file, Systems.AMARR);
-        //items.bindItemIds(file, dbPath);
-        ships.updateShipPrices(file);
+        items.bindItemIds(file, dbPath);
+        //ships.updateShipPrices(file);
         
         System.out.println("Fin");
     }
