@@ -8,8 +8,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -26,6 +30,7 @@ public class ShipManufacturing {
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
         XSSFSheet sheet = wb.getSheetAt(0);
+        FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
         fsIP.close();
 
         Coordinate start = new Coordinate(14, 0);
@@ -36,11 +41,12 @@ public class ShipManufacturing {
 
                 if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
                     String cellVal = c.getStringCellValue();
+                    System.out.println(cellVal);
 
                     String itemName = cellVal.substring(0, cellVal.indexOf(" - "));
                     Integer itemNum = Integer.parseInt(cellVal.substring(cellVal.indexOf(" - ") + 3));
 
-                    updateManufactureCosts(sheet, itemName, new Coordinate(r.getRowNum(), 3));
+                    updateManufactureCosts(sheet, itemName, new Coordinate(r.getRowNum(), 3), evaluator);
                     updateItemForSystem(itemNum, sheet, new Coordinate(r.getRowNum(), 2));
                 }
             }
@@ -62,26 +68,28 @@ public class ShipManufacturing {
 
         SellOrders sellOrders = query.getQuick().getSellOrder();
 
-        Double lowest = items.getLowestSellPrice(sellOrders);
+        if (sellOrders != null) {
+            Double lowest = items.getLowestSellPrice(sellOrders);
 
-        if (lowest != null) {
-            Cell c = sheet.getRow(loc.getX()).getCell(loc.getY());
+            if (lowest != null) {
+                Cell c = sheet.getRow(loc.getX()).getCell(loc.getY());
 
-            if (c == null) {
-                c = sheet.getRow(loc.getX()).createCell(loc.getY());
-                c.setCellType(Cell.CELL_TYPE_NUMERIC);
+                if (c == null) {
+                    c = sheet.getRow(loc.getX()).createCell(loc.getY());
+                    c.setCellType(Cell.CELL_TYPE_NUMERIC);
+                }
+
+                c.setCellValue(lowest);
             }
-
-            c.setCellValue(lowest);
         }
     }
 
-    public void updateManufactureCosts(XSSFSheet sheet, String ship, Coordinate c) {
+    public void updateManufactureCosts(XSSFSheet sheet, String ship, Coordinate c, FormulaEvaluator eval) {
         Coordinate shipLoc = findShip(sheet, ship);
         int x = shipLoc.getX();
         int y = shipLoc.getY();
 
-        String formula = "=";
+        Double formula = 0.0;
 
         int tritanium = (int) sheet.getRow(x + 2).getCell(y + 1).getNumericCellValue();
         int pyerite = (int) sheet.getRow(x + 3).getCell(y + 1).getNumericCellValue();
@@ -91,13 +99,13 @@ public class ShipManufacturing {
         int zydrine = (int) sheet.getRow(x + 7).getCell(y + 1).getNumericCellValue();
         int megacyte = (int) sheet.getRow(x + 8).getCell(y + 1).getNumericCellValue();
 
-        formula += getMineralPrice(sheet, Items.TRITANIUM) + "*" + tritanium + "+";
-        formula += getMineralPrice(sheet, Items.PYERITE) + "*" + pyerite + "+";
-        formula += getMineralPrice(sheet, Items.MEXALLON) + "*" + mexallon + "+";
-        formula += getMineralPrice(sheet, Items.ISOGEN) + "*" + isogen + "+";
-        formula += getMineralPrice(sheet, Items.NOCXIUM) + "*" + nocxium + "+";
-        formula += getMineralPrice(sheet, Items.ZYDRINE) + "*" + zydrine + "+";
-        formula += getMineralPrice(sheet, Items.MEGACYTE) + "*" + megacyte;
+        formula += getMineralPrice(sheet, Items.TRITANIUM) * tritanium;
+        formula += getMineralPrice(sheet, Items.PYERITE) * pyerite;
+        formula += getMineralPrice(sheet, Items.MEXALLON) * mexallon;
+        formula += getMineralPrice(sheet, Items.ISOGEN) * isogen;
+        formula += getMineralPrice(sheet, Items.NOCXIUM) * nocxium;
+        formula += getMineralPrice(sheet, Items.ZYDRINE) * zydrine;
+        formula += getMineralPrice(sheet, Items.MEGACYTE) * megacyte;
 
         Cell write = sheet.getRow(c.getX()).getCell(c.getY());
 
@@ -107,6 +115,7 @@ public class ShipManufacturing {
 
         write.setCellValue(formula);
 
+        eval.evaluateFormulaCell(write);
     }
 
     public Coordinate findShip(XSSFSheet sheet, String ship) {
@@ -159,10 +168,34 @@ public class ShipManufacturing {
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
         XSSFSheet sheet = wb.getSheetAt(0);
-        wb.close();
+        FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
         fsIP.close();
 
-        // updateManufactureCosts(sheet, "Moa");
+        CellReference cellReference = new CellReference("D17"); 
+        Row row = sheet.getRow(cellReference.getRow());
+        Cell c = row.getCell(cellReference.getCol());
+        
+        System.out.println(c.getStringCellValue());
+        
+        c.setCellType(Cell.CELL_TYPE_FORMULA);
+
+        CellValue value = evaluator.evaluate(c);
+        int value2 = evaluator.evaluateFormulaCell(c);
+        
+        System.out.println(value.getNumberValue());
+        System.out.println(value2);
+        
+        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
+        
+        //c.setCellValue(value.getNumberValue());
+
+        FileOutputStream output_file = new FileOutputStream(new File(file));
+
+        wb.write(output_file); // write changes
+
+        output_file.close();
+
+        wb.close();
     }
 
 }

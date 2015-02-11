@@ -219,9 +219,12 @@ public class ItemTrading {
         Integer id = -1;
 
         for (String s : db) {
-            if (s.contains(itemName)) {
-                id = Integer.parseInt(s.substring(0, s.indexOf("    ")).trim());
-                return id;
+            if (s.contains("    ")) {
+                String formatted = s.substring(s.indexOf("    ")).trim();
+                if (itemName.equals(formatted)) {
+                    id = Integer.parseInt(s.substring(0, s.indexOf("    ")).trim());
+                    return id;
+                }
             }
         }
 
