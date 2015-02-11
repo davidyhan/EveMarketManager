@@ -83,7 +83,9 @@ public class ShipManufacturing {
             }
         } else {
             Cell c = sheet.getRow(loc.getX()).getCell(loc.getY());
-            sheet.getRow(loc.getX()).removeCell(c);
+            if (c != null) {
+                sheet.getRow(loc.getX()).removeCell(c);
+            }
         }
     }
 
@@ -165,40 +167,6 @@ public class ShipManufacturing {
                 break;
         }
         return price;
-    }
-
-    public void test(String file) throws Exception {
-        FileInputStream fsIP = new FileInputStream(new File(file));
-        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
-        XSSFSheet sheet = wb.getSheetAt(0);
-        FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-        fsIP.close();
-
-        CellReference cellReference = new CellReference("D17");
-        Row row = sheet.getRow(cellReference.getRow());
-        Cell c = row.getCell(cellReference.getCol());
-
-        System.out.println(c.getStringCellValue());
-
-        c.setCellType(Cell.CELL_TYPE_FORMULA);
-
-        CellValue value = evaluator.evaluate(c);
-        int value2 = evaluator.evaluateFormulaCell(c);
-
-        System.out.println(value.getNumberValue());
-        System.out.println(value2);
-
-        XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
-
-        // c.setCellValue(value.getNumberValue());
-
-        FileOutputStream output_file = new FileOutputStream(new File(file));
-
-        wb.write(output_file); // write changes
-
-        output_file.close();
-
-        wb.close();
     }
 
 }

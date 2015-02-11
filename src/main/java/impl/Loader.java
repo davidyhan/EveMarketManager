@@ -9,6 +9,5 @@ public class Loader {
 
         ShipManufacturing ship = new ShipManufacturing();
 
-        ship.test(file);
     }
 }
