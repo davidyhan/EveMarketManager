@@ -17,7 +17,11 @@ import java.util.List;
 import javax.xml.bind.JAXBException;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -52,7 +56,7 @@ public class ItemTrading {
             updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
         }
 
-        calculateProfitMargins(sheet, 0);
+        calculateProfitMargins(sheet, 0, wb);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -232,7 +236,11 @@ public class ItemTrading {
     }
 
     // Calculates the profit margins for items between GE and Amarr
-    public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
+    public void calculateProfitMargins(XSSFSheet sheet, int start, XSSFWorkbook wb) throws IOException {
+        XSSFCellStyle green = wb.createCellStyle();
+        green.setFillForegroundColor(new XSSFColor(new java.awt.Color(128, 0, 128)));
+        green.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
                 // gets the first cell to check if it's a item row
@@ -252,8 +260,10 @@ public class ItemTrading {
 
                         profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
                         profitCell.setCellValue(profitPercentage);
+                        if(profitPercentage > 0.4){
+                            profitCell.setCellStyle(green);
+                        }
                     }
-
                 }
             }
         }

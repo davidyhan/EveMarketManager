@@ -52,7 +52,7 @@ public class ShipManufacturing {
             }
         }
 
-        items.calculateProfitMargins(sheet, 14);
+        items.calculateProfitMargins(sheet, 14, wb);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
