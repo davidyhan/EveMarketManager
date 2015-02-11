@@ -56,7 +56,8 @@ public class ItemTrading {
             updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
         }
 
-        calculateProfitMargins(sheet, 0, wb);
+        calculateProfitMargins(sheet, 0);
+        colorProfitMargins(sheet, new Coordinate(3, 1), wb);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -236,10 +237,7 @@ public class ItemTrading {
     }
 
     // Calculates the profit margins for items between GE and Amarr
-    public void calculateProfitMargins(XSSFSheet sheet, int start, XSSFWorkbook wb) throws IOException {
-        XSSFCellStyle green = wb.createCellStyle();
-        green.setFillForegroundColor(new XSSFColor(new java.awt.Color(128, 0, 128)));
-        green.setFillPattern(CellStyle.SOLID_FOREGROUND);
+    public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
 
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
@@ -260,9 +258,44 @@ public class ItemTrading {
 
                         profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
                         profitCell.setCellValue(profitPercentage);
-                        if(profitPercentage > 0.4){
-                            profitCell.setCellStyle(green);
-                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Fills in color for profit margins
+    public void colorProfitMargins(XSSFSheet sheet, Coordinate c, XSSFWorkbook wb) {
+        // sets up the colors
+        XSSFCellStyle green = wb.createCellStyle();
+        green.setFillForegroundColor(new XSSFColor(new java.awt.Color(149, 255, 149)));
+        green.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+        XSSFCellStyle red = wb.createCellStyle();
+        red.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 135, 135)));
+        red.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+        XSSFCellStyle orange = wb.createCellStyle();
+        orange.setFillForegroundColor(new XSSFColor(new java.awt.Color(255, 191, 135)));
+        orange.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+        XSSFCellStyle clear = wb.createCellStyle();
+        clear.setFillPattern(CellStyle.NO_FILL);
+
+        // iterates through the excel starting at the starting coordinate
+        for (Row r : sheet) {
+            if (r.getRowNum() >= c.getX()) {
+                Cell cell = r.getCell(c.getY());
+
+                // checks to make sure the cell coming back isn't null
+                if (cell != null) {
+                    Double value = cell.getNumericCellValue();
+                    if (value > 40) {
+                        cell.setCellStyle(green);
+                    } else if (value < -20) {
+                        cell.setCellStyle(red);
+                    } else {
+                        cell.setCellStyle(clear);
                     }
                 }
             }

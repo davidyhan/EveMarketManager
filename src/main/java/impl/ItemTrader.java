@@ -10,7 +10,6 @@ public class ItemTrader {
 
         ItemTrading itemTrading = new ItemTrading();
 
-        // itemTrading.updateSingleItemPrice(filePath, 91);
         itemTrading.updateItemSheet(filePath, dbPath);
 
         System.out.println("Fin");

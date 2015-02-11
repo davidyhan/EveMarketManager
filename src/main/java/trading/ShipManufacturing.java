@@ -52,7 +52,7 @@ public class ShipManufacturing {
             }
         }
 
-        items.calculateProfitMargins(sheet, 14, wb);
+        items.calculateProfitMargins(sheet, 14);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -68,7 +68,7 @@ public class ShipManufacturing {
 
         SellOrders sellOrders = query.getQuick().getSellOrder();
 
-        if (sellOrders != null) {
+        if (sellOrders.getListOrders() != null) {
             Double lowest = items.getLowestSellPrice(sellOrders);
 
             if (lowest != null) {
@@ -81,6 +81,9 @@ public class ShipManufacturing {
 
                 c.setCellValue(lowest);
             }
+        } else {
+            Cell c = sheet.getRow(loc.getX()).getCell(loc.getY());
+            sheet.getRow(loc.getX()).removeCell(c);
         }
     }
 
@@ -171,23 +174,23 @@ public class ShipManufacturing {
         FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
         fsIP.close();
 
-        CellReference cellReference = new CellReference("D17"); 
+        CellReference cellReference = new CellReference("D17");
         Row row = sheet.getRow(cellReference.getRow());
         Cell c = row.getCell(cellReference.getCol());
-        
+
         System.out.println(c.getStringCellValue());
-        
+
         c.setCellType(Cell.CELL_TYPE_FORMULA);
 
         CellValue value = evaluator.evaluate(c);
         int value2 = evaluator.evaluateFormulaCell(c);
-        
+
         System.out.println(value.getNumberValue());
         System.out.println(value2);
-        
+
         XSSFFormulaEvaluator.evaluateAllFormulaCells(wb);
-        
-        //c.setCellValue(value.getNumberValue());
+
+        // c.setCellValue(value.getNumberValue());
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
