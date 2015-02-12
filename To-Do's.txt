@@ -1,7 +1,7 @@
 NEW CODE
 - Add method to read excels so there's not the same 5 lines of code for each method
-- Add color coding for profit margins
 - Write code to find firesale items in Catch
+- Add code to format number cells
 
 REFACTORING
 - change the update minerals code to look less ugly
