@@ -3,8 +3,8 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>fuse</groupId>
-    <artifactId>hello-world</artifactId>
+    <groupId>Eve</groupId>
+    <artifactId>market-manager</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
