@@ -1,5 +1,6 @@
 package impl;
 
+import trading.Coordinate;
 import trading.ItemTrading;
 
 public class ItemTrader {
@@ -11,6 +12,9 @@ public class ItemTrader {
         ItemTrading itemTrading = new ItemTrading();
 
         itemTrading.updateItemSheet(filePath, dbPath);
+        //itemTrading.updateSingleItemPrice(filePath, 102);
+        
+        //itemTrading.test(filePath, new Coordinate(102,3));
 
         System.out.println("Fin");
     }

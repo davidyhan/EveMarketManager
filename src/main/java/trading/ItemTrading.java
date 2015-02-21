@@ -121,6 +121,11 @@ public class ItemTrading {
                 }
 
                 writeSpot.setCellValue(lowestPrice);
+            } else {
+                Cell nullify = sheet.getRow(c.getX()).getCell(c.getY() + 2);
+                if (nullify != null) {
+                    sheet.getRow(c.getX()).removeCell(nullify);
+                }
             }
         }
     }
@@ -149,8 +154,13 @@ public class ItemTrading {
     public Coordinate getItemCoordinate(String itemName, XSSFSheet sheet) {
         for (Row r : sheet) {
             for (Cell c : r) {
-                if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().contains(itemName)) {
-                    return new Coordinate(c.getRowIndex(), c.getColumnIndex());
+                if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().contains(" - ")) {
+                    String val = c.getStringCellValue();
+                    String name = val.substring(0, val.indexOf(" - "));
+
+                    if (name.equals(itemName)) {
+                        return new Coordinate(c.getRowIndex(), c.getColumnIndex());
+                    }
                 }
             }
         }
@@ -300,5 +310,27 @@ public class ItemTrading {
                 }
             }
         }
+    }
+    
+    
+    //TESTING PURPOSES ONLY
+    public void test(String file, Coordinate cor) throws Exception {
+        FileInputStream fsIP = new FileInputStream(new File(file));
+        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        fsIP.close();
+
+        Cell c = sheet.getRow(cor.getX()).getCell(cor.getY());
+
+        System.out.println(c.getNumericCellValue());
+        // sheet.getRow(cor.getX()).removeCell(c);
+
+        FileOutputStream output_file = new FileOutputStream(new File(file));
+
+        wb.write(output_file); // write changes
+
+        output_file.close();
+
+        wb.close();
     }
 }
