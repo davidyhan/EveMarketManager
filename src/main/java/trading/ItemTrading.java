@@ -18,7 +18,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
@@ -39,6 +38,7 @@ public class ItemTrading {
     public ItemTrading() {
         systems.add(Systems.GE);
         systems.add(Systems.AMARR);
+        systems.add(Systems.HED);
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {
@@ -268,6 +268,9 @@ public class ItemTrading {
 
                         profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
                         profitCell.setCellValue(profitPercentage);
+                    } else {
+                        r.removeCell(r.getCell(1));
+                        ;
                     }
                 }
             }
@@ -311,9 +314,8 @@ public class ItemTrading {
             }
         }
     }
-    
-    
-    //TESTING PURPOSES ONLY
+
+    // TESTING PURPOSES ONLY
     public void test(String file, Coordinate cor) throws Exception {
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
