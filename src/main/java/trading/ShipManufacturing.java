@@ -8,12 +8,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import org.apache.poi.hssf.util.CellReference;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -64,7 +61,7 @@ public class ShipManufacturing {
     }
 
     public void updateItemForSystem(int itemNum, XSSFSheet sheet, Coordinate loc) throws Exception {
-        EveCentralApi query = quick.unmarshal(quick.queryItemBySystem(itemNum, Systems.GE), EveCentralApi.class);
+        EveCentralApi query = quick.unmarshal(quick.queryItemBySystem(itemNum, Systems.HED), EveCentralApi.class);
 
         SellOrders sellOrders = query.getQuick().getSellOrder();
 

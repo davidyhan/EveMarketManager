@@ -36,9 +36,9 @@ public class ItemTrading {
     ArrayList<Integer> systems = new ArrayList<Integer>();
 
     public ItemTrading() {
-        systems.add(Systems.GE);
-        systems.add(Systems.AMARR);
         systems.add(Systems.HED);
+        systems.add(Systems.AMARR);
+        systems.add(Systems.GE);
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {
@@ -69,6 +69,7 @@ public class ItemTrading {
 
     }
 
+    // TODO, refactor this method, testing only
     public void updateSingleItemPrice(String file, int rowNum) throws Exception {
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
@@ -81,6 +82,7 @@ public class ItemTrading {
         Integer itemId = Integer.parseInt(combined.substring(combined.indexOf("-") + 1).trim());
 
         updateItemPriceForAllSystems(itemName, itemId, sheet);
+        calculateProfitMarginSingle(sheet, sheet.getRow(rowNum));
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -246,32 +248,37 @@ public class ItemTrading {
         return id;
     }
 
-    // Calculates the profit margins for items between GE and Amarr
+    // Calculates the profit margins for items between Staging system (Currently HED) and Amarr
     public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
-
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
-                // gets the first cell to check if it's a item row
-                Cell c = r.getCell(0);
-                if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
-                    if (r.getCell(2) != null && r.getCell(3) != null) {
-                        Double gePrice = r.getCell(2).getNumericCellValue();
-                        Double amarrPrice = r.getCell(3).getNumericCellValue();
+                calculateProfitMarginSingle(sheet, r);
+            }
+        }
+    }
 
-                        Double profitPercentage = ((gePrice - amarrPrice) / amarrPrice) * 100;
+    public void calculateProfitMarginSingle(XSSFSheet sheet, Row r) {
+        // gets the first cell to check if it's a item row
+        Cell c = r.getCell(0);
+        if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
+            if (r.getCell(4) != null && r.getCell(3) != null) {
+                Double stagingPrice = r.getCell(4).getNumericCellValue();
+                Double amarrPrice = r.getCell(3).getNumericCellValue();
 
-                        Cell profitCell = r.getCell(1);
+                Double profitPercentage = ((stagingPrice - amarrPrice) / amarrPrice) * 100;
 
-                        if (profitCell == null) {
-                            profitCell = r.createCell(1);
-                        }
+                Cell profitCell = r.getCell(1);
 
-                        profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
-                        profitCell.setCellValue(profitPercentage);
-                    } else {
-                        r.removeCell(r.getCell(1));
-                        ;
-                    }
+                if (profitCell == null) {
+                    profitCell = r.createCell(1);
+                }
+
+                profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                profitCell.setCellValue(profitPercentage);
+            } else {
+                Cell margin = r.getCell(1);
+                if (margin != null) {
+                    r.removeCell(margin);
                 }
             }
         }
