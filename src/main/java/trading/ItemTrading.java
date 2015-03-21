@@ -261,8 +261,8 @@ public class ItemTrading {
         // gets the first cell to check if it's a item row
         Cell c = r.getCell(0);
         if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
-            if (r.getCell(4) != null && r.getCell(3) != null) {
-                Double stagingPrice = r.getCell(4).getNumericCellValue();
+            if (r.getCell(2) != null && r.getCell(3) != null) {
+                Double stagingPrice = r.getCell(2).getNumericCellValue();
                 Double amarrPrice = r.getCell(3).getNumericCellValue();
 
                 Double profitPercentage = ((stagingPrice - amarrPrice) / amarrPrice) * 100;
