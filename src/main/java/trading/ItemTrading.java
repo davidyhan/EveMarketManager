@@ -36,9 +36,10 @@ public class ItemTrading {
     ArrayList<Integer> systems = new ArrayList<Integer>();
 
     public ItemTrading() {
-        systems.add(Systems.HED);
+        //systems.add(Systems.HED);
+    	systems.add(Systems.UH);
         systems.add(Systems.AMARR);
-        systems.add(Systems.GE);
+        //systems.add(Systems.GE);
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {

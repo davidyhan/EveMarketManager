@@ -15,6 +15,9 @@ public class Systems {
     // Catch
     public static final int GE = 30001198;
     public static final int HED = 30001161;
+    
+    //Wicked Creek
+    public static final int UH = 30000575;
 
     /* REGIONS */
     public static final int CATCH = 10000014;
