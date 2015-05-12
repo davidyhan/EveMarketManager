@@ -11,9 +11,6 @@ public class ItemTrader {
         ItemTrading itemTrading = new ItemTrading();
 
         itemTrading.updateItemSheet(filePath, dbPath);
-        // itemTrading.updateSingleItemPrice(filePath, 31);
-
-        // itemTrading.test(filePath, new Coordinate(102,3));
 
         System.out.println("Fin");
     }

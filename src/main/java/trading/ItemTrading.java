@@ -1,6 +1,7 @@
 package trading;
 
 import ids.Systems;
+import impl.EveApiImpl;
 import impl.EveCentral;
 
 import java.io.File;
@@ -24,6 +25,8 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import EveApi.CharOrder;
+import EveApi.EveApi;
 import quicklook.EveCentralApi;
 import quicklook.Order;
 import quicklook.SellOrders;
@@ -32,14 +35,13 @@ import exceptions.ItemNotFoundException;
 
 @SuppressWarnings("restriction")
 public class ItemTrading {
-    EveCentral quickLook = new EveCentral(EveCentral.quickLookBase);
-    ArrayList<Integer> systems = new ArrayList<Integer>();
+    private EveCentral quickLook = new EveCentral(EveCentral.quickLookBase);
+    private ArrayList<Integer> systems = new ArrayList<Integer>();
+    private EveApiImpl api = new EveApiImpl();
 
     public ItemTrading() {
-        //systems.add(Systems.HED);
-    	systems.add(Systems.UH);
+        systems.add(Systems.UH);
         systems.add(Systems.AMARR);
-        //systems.add(Systems.GE);
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {
@@ -53,12 +55,13 @@ public class ItemTrading {
 
         HashMap<String, Integer> itemMap = parseItemMap(sheet);
 
-        for (String key : itemMap.keySet()) {
-            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
-        }
+//        for (String key : itemMap.keySet()) {
+//            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
+//        }
 
         calculateProfitMargins(sheet, 0);
-        colorProfitMargins(sheet, new Coordinate(3, 1), wb);
+        //colorProfitMargins(sheet, new Coordinate(3, 1), wb);
+        api.updateCharacterOrderAmount(sheet);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -170,14 +173,16 @@ public class ItemTrading {
         return null;
     }
 
-    // Return a hash map of the items in the item trader file with their corresponding item id's
+    // Return a hash map of the items in the item trader file with their
+    // corresponding item id's
     public HashMap<String, Integer> parseItemMap(XSSFSheet sheet) throws ExcelException {
         HashMap<String, Integer> items = new HashMap<String, Integer>();
 
         for (Row r : sheet) {
             Cell c = r.getCell(0);
 
-            // Makes sure the cell is not null + is type string + does not contains *
+            // Makes sure the cell is not null + is type string + does not
+            // contains *
             if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
                 String combined = c.getStringCellValue();
                 int delimiter = combined.indexOf(" - ");
@@ -204,7 +209,8 @@ public class ItemTrading {
         XSSFSheet sheet = wb.getSheetAt(0);
         fsIP.close();
 
-        // Goes through the first column of each row (only item names + id's should be on this row)
+        // Goes through the first column of each row (only item names + id's
+        // should be on this row)
         for (Row r : sheet) {
             Cell c = r.getCell(0);
 
@@ -249,7 +255,8 @@ public class ItemTrading {
         return id;
     }
 
-    // Calculates the profit margins for items between Staging system (Currently HED) and Amarr
+    // Calculates the profit margins for items between Staging system (Currently
+    // HED) and Amarr
     public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
@@ -310,6 +317,7 @@ public class ItemTrading {
 
                 // checks to make sure the cell coming back isn't null
                 if (cell != null) {
+                    //System.out.println(cell.getRowIndex() + ", " + cell.getColumnIndex());
                     Double value = cell.getNumericCellValue();
                     if (value > 40) {
                         cell.setCellStyle(green);
@@ -321,26 +329,5 @@ public class ItemTrading {
                 }
             }
         }
-    }
-
-    // TESTING PURPOSES ONLY
-    public void test(String file, Coordinate cor) throws Exception {
-        FileInputStream fsIP = new FileInputStream(new File(file));
-        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
-        XSSFSheet sheet = wb.getSheetAt(0);
-        fsIP.close();
-
-        Cell c = sheet.getRow(cor.getX()).getCell(cor.getY());
-
-        System.out.println(c.getNumericCellValue());
-        // sheet.getRow(cor.getX()).removeCell(c);
-
-        FileOutputStream output_file = new FileOutputStream(new File(file));
-
-        wb.write(output_file); // write changes
-
-        output_file.close();
-
-        wb.close();
     }
 }

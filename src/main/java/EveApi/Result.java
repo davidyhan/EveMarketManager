@@ -18,4 +18,9 @@ public class Result {
         this.rowset = rowset;
     }
 
+	@Override
+	public String toString() {
+		return rowset.toString();
+	}
+
 }
