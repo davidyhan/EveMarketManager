@@ -1,0 +1,1 @@
+<row orderID="4037983622" charID="90277561" stationID="61000654" volEntered="15" volRemaining="15" minVolume="1" orderState="0" typeID="3122" range="32767" accountKey="1000" duration="90" escrow="0.00" price="4999999.98" bid="0" issued="2015-05-12 14:09:33" />
