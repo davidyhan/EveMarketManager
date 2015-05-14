@@ -21,29 +21,32 @@ public class EveApiImpl {
 
         for (CharOrder order : orders) {
             Integer itemId = order.getTypeId();
-            String orderRatio = ""+order.getVolRemaining()+"/"+order.getVolEntered();
-            
+            String orderRatio = "" + order.getVolRemaining() + "/" + order.getVolEntered();
+
             Row r = getRowFromId(sheet, itemId);
-            
-            if(r == null){
-                throw new ItemNotFoundException("Item with id: "+ itemId +" does not exist in spreadsheet");
+
+            if (r != null && order.getOrderState() == 0) {
+                Cell c = r.getCell(5);
+                if (c == null) {
+                    c = r.createCell(5);
+                }
+                c.setCellValue(orderRatio);
+            } else {
+                if (!(order.getOrderState() == 2)) {
+                    throw new ItemNotFoundException("Item with id: " + itemId + " does not exist in spreadsheet");
+                }
             }
-            
-            Cell c = r.getCell(5);
-            if(c == null){
-                c = r.createCell(5);
-            }
-            c.setCellValue(orderRatio);
+
         }
     }
-    
-    private Row getRowFromId(XSSFSheet sheet, Integer id){
-        for(Row r : sheet){
-            if(r.getCell(0) != null && r.getCell(0).getStringCellValue().contains(id.toString())){
+
+    private Row getRowFromId(XSSFSheet sheet, Integer id) {
+        for (Row r : sheet) {
+            if (r.getCell(0) != null && r.getCell(0).getStringCellValue().contains(id.toString())) {
                 return r;
             }
         }
-        
+
         return null;
     }
 }

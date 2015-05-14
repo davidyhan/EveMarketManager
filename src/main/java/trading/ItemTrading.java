@@ -25,8 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import EveApi.CharOrder;
-import EveApi.EveApi;
 import quicklook.EveCentralApi;
 import quicklook.Order;
 import quicklook.SellOrders;
@@ -55,12 +53,12 @@ public class ItemTrading {
 
         HashMap<String, Integer> itemMap = parseItemMap(sheet);
 
-//        for (String key : itemMap.keySet()) {
-//            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
-//        }
+        for (String key : itemMap.keySet()) {
+            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
+        }
 
         calculateProfitMargins(sheet, 0);
-        //colorProfitMargins(sheet, new Coordinate(3, 1), wb);
+        colorProfitMargins(sheet, new Coordinate(3, 1), wb);
         api.updateCharacterOrderAmount(sheet);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
@@ -317,7 +315,7 @@ public class ItemTrading {
 
                 // checks to make sure the cell coming back isn't null
                 if (cell != null) {
-                    //System.out.println(cell.getRowIndex() + ", " + cell.getColumnIndex());
+                    // System.out.println(cell.getRowIndex() + ", " + cell.getColumnIndex());
                     Double value = cell.getNumericCellValue();
                     if (value > 40) {
                         cell.setCellStyle(green);

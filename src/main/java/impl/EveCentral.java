@@ -31,8 +31,8 @@ public class EveCentral {
 
         return queryEveCentralUrl(queryURL);
     }
-    
-    //Querys a list of items from a list of regions
+
+    // Querys a list of items from a list of regions
     public String queryItemsByRegions(List<Integer> items, List<Integer> regions) throws IOException {
         String queryURL = url;
 
@@ -44,11 +44,11 @@ public class EveCentral {
                 queryURL += "&typeid=" + items.get(i);
             }
         }
-        
-        for(Integer region: regions){
-            queryURL+= "&regionlimit=" + region;
+
+        for (Integer region : regions) {
+            queryURL += "&regionlimit=" + region;
         }
-        
+
         return queryEveCentralUrl(queryURL);
     }
 
