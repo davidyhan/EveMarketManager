@@ -1,7 +1,6 @@
 NEW CODE
 - Add method to read excels so there's not the same 5 lines of code for each method
-- Write code to find firesale items in Catch
-- Add code to format number cells
+- Integrate with zkillboard api to pull most used items in test
 
 REFACTORING
 - change the update minerals code to look less ugly
