@@ -15,7 +15,7 @@ public class ShipManufacturer {
         String file = "C:\\Users\\David\\Dropbox\\Eve\\ShipManufacturing.xlsx";
         String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\items.txt";
 
-        minerals.updateMineralPrices(file, Systems.AMARR);
+        minerals.updateMineralPrices(file, Systems.JITA);
         items.bindItemIds(file, dbPath);
         ships.updateShipPrices(file);
 

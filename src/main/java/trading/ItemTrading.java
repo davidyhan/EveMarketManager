@@ -15,8 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -26,12 +24,10 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import quicklook.EveCentralApi;
-import quicklook.Order;
 import quicklook.SellOrders;
 import exceptions.ExcelException;
 import exceptions.ItemNotFoundException;
 
-@SuppressWarnings("restriction")
 public class ItemTrading {
     private EveCentral quickLook = new EveCentral(EveCentral.quickLookBase);
     private ArrayList<Integer> systems = new ArrayList<Integer>();
@@ -71,32 +67,8 @@ public class ItemTrading {
 
     }
 
-    // TODO, refactor this method, testing only
-    public void updateSingleItemPrice(String file, int rowNum) throws Exception {
-        FileInputStream fsIP = new FileInputStream(new File(file));
-        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
-        XSSFSheet sheet = wb.getSheetAt(0);
-        fsIP.close();
-
-        String combined = sheet.getRow(rowNum).getCell(0).getStringCellValue();
-
-        String itemName = combined.substring(0, combined.indexOf("-")).trim();
-        Integer itemId = Integer.parseInt(combined.substring(combined.indexOf("-") + 1).trim());
-
-        updateItemPriceForAllSystems(itemName, itemId, sheet);
-        calculateProfitMarginSingle(sheet, sheet.getRow(rowNum));
-
-        FileOutputStream output_file = new FileOutputStream(new File(file));
-
-        wb.write(output_file); // write changes
-
-        output_file.close();
-
-        wb.close();
-    }
-
     // Updates the item from for each System on the item trading excel sheet
-    public void updateItemPriceForAllSystems(String itemName, Integer itemId, XSSFSheet sheet) throws Exception {
+    private void updateItemPriceForAllSystems(String itemName, Integer itemId, XSSFSheet sheet) throws Exception {
         System.out.println("Item Name: " + itemName + ", Item Id: " + itemId);
 
         Coordinate c = getItemCoordinate(itemName, sheet);
@@ -134,28 +106,13 @@ public class ItemTrading {
         }
     }
 
-    public void updateItemPriceForSystem(int item, Double price, Coordinate c, XSSFSheet sheet) throws JAXBException, IOException {
-        Cell cell = sheet.getRow(c.getX()).getCell(c.getY());
-        cell.setCellValue(price);
-    }
-
     public Double getLowestSellPrice(SellOrders orders) {
         Collections.sort(orders.getListOrders());
 
         return orders.getListOrders().get(0).getPrice();
     }
 
-    public Integer getTotalVolume(SellOrders orders) {
-        Integer totalOrders = 0;
-
-        for (Order o : orders.getListOrders()) {
-            totalOrders += o.getVolumeRemaining();
-        }
-
-        return totalOrders;
-    }
-
-    public Coordinate getItemCoordinate(String itemName, XSSFSheet sheet) {
+    private Coordinate getItemCoordinate(String itemName, XSSFSheet sheet) {
         for (Row r : sheet) {
             for (Cell c : r) {
                 if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().contains(" - ")) {
@@ -173,7 +130,7 @@ public class ItemTrading {
 
     // Return a hash map of the items in the item trader file with their
     // corresponding item id's
-    public HashMap<String, Integer> parseItemMap(XSSFSheet sheet) throws ExcelException {
+    private HashMap<String, Integer> parseItemMap(XSSFSheet sheet) throws ExcelException {
         HashMap<String, Integer> items = new HashMap<String, Integer>();
 
         for (Row r : sheet) {
@@ -237,7 +194,7 @@ public class ItemTrading {
         wb.close();
     }
 
-    public Integer getItemIdFromDB(List<String> db, String itemName) {
+    private Integer getItemIdFromDB(List<String> db, String itemName) {
         Integer id = -1;
 
         for (String s : db) {
@@ -254,7 +211,7 @@ public class ItemTrading {
     }
 
     // Calculates the profit margins for items between Staging system (Currently
-    // HED) and Amarr
+    // U-H) and Amarr
     public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
@@ -263,7 +220,7 @@ public class ItemTrading {
         }
     }
 
-    public void calculateProfitMarginSingle(XSSFSheet sheet, Row r) {
+    private void calculateProfitMarginSingle(XSSFSheet sheet, Row r) {
         // gets the first cell to check if it's a item row
         Cell c = r.getCell(0);
         if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
@@ -291,7 +248,7 @@ public class ItemTrading {
     }
 
     // Fills in color for profit margins
-    public void colorProfitMargins(XSSFSheet sheet, Coordinate c, XSSFWorkbook wb) {
+    private void colorProfitMargins(XSSFSheet sheet, Coordinate c, XSSFWorkbook wb) {
         // sets up the colors
         XSSFCellStyle green = wb.createCellStyle();
         green.setFillForegroundColor(new XSSFColor(new java.awt.Color(149, 255, 149)));
