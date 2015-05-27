@@ -11,13 +11,14 @@ import EveApi.EveApi;
 import exceptions.ItemNotFoundException;
 
 public class EveApiImpl {
-    private final String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4102574&vCode=bRm8i16U0kHCsI0mxHfsH28tgXQB65TRQ2eDijUkeOgAxW7jQPgrwhoNims1G49f";
+    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4411599&vCode=M92INSxszKofWhN02pVpla8QO1yl76It197OSMeZ8BTrcy33QZ3EjZ4QUkBoKsAt";
 
     private EveCentral eve = new EveCentral(EveCentral.quickLookBase);
 
     // Updates the item trade sheet with Character order amounts provided by Eve online api keys
     public void updateCharacterOrderAmount(XSSFSheet sheet) throws Exception {
         List<CharOrder> orders = eve.unmarshal(eve.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
+        clearUnitsColumn(sheet);
 
         for (CharOrder order : orders) {
             Integer itemId = order.getTypeId();
@@ -25,18 +26,31 @@ public class EveApiImpl {
 
             Row r = getRowFromId(sheet, itemId);
 
-            if (r != null && order.getOrderState() == 0) {
-                Cell c = r.getCell(5);
-                if (c == null) {
-                    c = r.createCell(5);
+            if (r != null) {
+                if (order.getOrderState() == 0) {
+                    Cell c = r.getCell(5);
+                    if (c == null) {
+                        c = r.createCell(5);
+                    }
+                    c.setCellValue(orderRatio);
+                } else if (order.getOrderState() == 2 && r.getCell(5) != null) {
+                    r.removeCell(r.getCell(5));
                 }
-                c.setCellValue(orderRatio);
             } else {
                 if (!(order.getOrderState() == 2)) {
                     throw new ItemNotFoundException("Item with id: " + itemId + " does not exist in spreadsheet");
                 }
             }
 
+        }
+    }
+
+    private void clearUnitsColumn(XSSFSheet sheet) {
+        for (Row r : sheet) {
+            Cell c = r.getCell(5);
+            if (c != null) {
+                r.removeCell(c);
+            }
         }
     }
 

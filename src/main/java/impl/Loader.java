@@ -6,16 +6,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import EveApi.EveApi;
+
 public class Loader {
+    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4411599&vCode=M92INSxszKofWhN02pVpla8QO1yl76It197OSMeZ8BTrcy33QZ3EjZ4QUkBoKsAt";
+    private static EveCentral eveCent = new EveCentral("");
 
     // Testing new code
     public static void main(String[] args) throws Exception {
-        EveApiImpl api = new EveApiImpl();
 
-        // api.updateCharacterOrderAmount();
+        EveApi api = eveCent.unmarshal(queryURL(NarwhalApi), EveApi.class);
+
+        System.out.println(api.toString());
     }
 
-    public String queryURL(String fullURL) throws IOException {
+    public static String queryURL(String fullURL) throws IOException {
         URL obj = new URL(fullURL);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
