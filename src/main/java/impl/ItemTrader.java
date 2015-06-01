@@ -12,6 +12,8 @@ public class ItemTrader {
 
         itemTrading.updateItemSheet(filePath, dbPath);
 
+        // itemTrading.updateItemSheetSingleItem(filePath, dbPath, "425mm Railgun II", 3090);
+
         System.out.println("Fin");
     }
 }

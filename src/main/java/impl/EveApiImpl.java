@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import EveApi.CharOrder;
 import EveApi.EveApi;
-import exceptions.ItemNotFoundException;
 
 public class EveApiImpl {
     private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4411599&vCode=M92INSxszKofWhN02pVpla8QO1yl76It197OSMeZ8BTrcy33QZ3EjZ4QUkBoKsAt";
@@ -38,7 +37,8 @@ public class EveApiImpl {
                 }
             } else {
                 if (!(order.getOrderState() == 2)) {
-                    throw new ItemNotFoundException("Item with id: " + itemId + " does not exist in spreadsheet");
+                    // throw new ItemNotFoundException("Item with id: " + itemId +
+                    // " does not exist in spreadsheet");
                 }
             }
 

@@ -35,7 +35,7 @@ public class ItemTrading {
 
     public ItemTrading() {
         systems.add(Systems.UH);
-        systems.add(Systems.AMARR);
+        systems.add(Systems.JITA);
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {
@@ -56,6 +56,27 @@ public class ItemTrading {
         calculateProfitMargins(sheet, 0);
         colorProfitMargins(sheet, new Coordinate(3, 1), wb);
         api.updateCharacterOrderAmount(sheet);
+
+        FileOutputStream output_file = new FileOutputStream(new File(file));
+
+        wb.write(output_file); // write changes
+
+        output_file.close();
+
+        wb.close();
+
+    }
+
+    public void updateItemSheetSingleItem(String file, String dbPath, String itemName, Integer itemId) throws Exception {
+        FileInputStream fsIP = new FileInputStream(new File(file));
+        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        fsIP.close();
+
+        updateItemPriceForAllSystems(itemName, itemId, sheet);
+
+        calculateProfitMargins(sheet, 0);
+        colorProfitMargins(sheet, new Coordinate(3, 1), wb);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 
@@ -278,6 +299,8 @@ public class ItemTrading {
                         cell.setCellStyle(green);
                     } else if (value < -20) {
                         cell.setCellStyle(red);
+                    } else if (value < 0 && value > -20) {
+                        cell.setCellStyle(orange);
                     } else {
                         cell.setCellStyle(clear);
                     }
