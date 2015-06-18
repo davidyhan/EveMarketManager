@@ -56,7 +56,7 @@ public class EveApiImpl {
     public void listMissingOrders(XSSFSheet sheet, List<CharOrder> orders) {
         for (CharOrder order : orders) {
             if (order.getOrderState() == 0) {
-                Cell ratioCell = getOrdersRatio(sheet, order.getTypeId());
+                Cell ratioCell = getOrdersRatio(sheet, order.getTypeId(), order);
                 // if (ratioCell == null) {
                 //
                 // System.out.println("Missing Character orders for item: " + order.getTypeId());
@@ -65,7 +65,7 @@ public class EveApiImpl {
         }
     }
 
-    public Cell getOrdersRatio(XSSFSheet sheet, int itemId) {
+    public Cell getOrdersRatio(XSSFSheet sheet, int itemId, CharOrder order) {
         for (Row r : sheet) {
             Cell c = r.getCell(0);
             if (c != null && c.getStringCellValue().contains(" - ")) {
@@ -74,7 +74,8 @@ public class EveApiImpl {
                     Cell ratio = r.getCell(5);
                     if (ratio == null) {
                         Cell newC = r.createCell(5);
-                        newC.setCellValue("Missing");
+                        // newC.setCellValue(order.getVolRemaining() + "/" + order.getVolEntered());
+                        newC.setCellValue("Missing: " + order.getVolRemaining() + "/" + order.getVolEntered());
                     }
                 }
             }
