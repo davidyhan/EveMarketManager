@@ -25,6 +25,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import quicklook.EveCentralApi;
 import quicklook.SellOrders;
+import EveApi.CharOrder;
+import EveApi.EveApi;
 import exceptions.ExcelException;
 import exceptions.ItemNotFoundException;
 
@@ -32,6 +34,8 @@ public class ItemTrading {
     private EveCentral quickLook = new EveCentral(EveCentral.quickLookBase);
     private ArrayList<Integer> systems = new ArrayList<Integer>();
     private EveApiImpl api = new EveApiImpl();
+
+    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4413855&vCode=mXeJY5fSA9YKp16zq0kgXTeYvjCwaAHoVKhDOjLK8x3iJ1su2Q9zENaSWY7vmEnZ";
 
     public ItemTrading() {
         systems.add(Systems.UH);
@@ -41,6 +45,7 @@ public class ItemTrading {
     public void updateItemSheet(String file, String dbPath) throws Exception {
         // Make sure all the items have their id's bound
         bindItemIds(file, dbPath);
+        List<CharOrder> orders = quickLook.unmarshal(quickLook.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
 
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
@@ -49,13 +54,13 @@ public class ItemTrading {
 
         HashMap<String, Integer> itemMap = parseItemMap(sheet);
 
-        for (String key : itemMap.keySet()) {
-            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
-        }
+        // for (String key : itemMap.keySet()) {
+        // updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
+        // }
 
         calculateProfitMargins(sheet, 0);
         colorProfitMargins(sheet, new Coordinate(3, 1), wb);
-        api.updateCharacterOrderAmount(sheet);
+        api.updateCharacterOrderAmount(sheet, orders);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
 

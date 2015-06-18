@@ -7,35 +7,43 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
 import EveApi.CharOrder;
-import EveApi.EveApi;
 
 public class EveApiImpl {
-    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4411599&vCode=M92INSxszKofWhN02pVpla8QO1yl76It197OSMeZ8BTrcy33QZ3EjZ4QUkBoKsAt";
+    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4413855&vCode=mXeJY5fSA9YKp16zq0kgXTeYvjCwaAHoVKhDOjLK8x3iJ1su2Q9zENaSWY7vmEnZ";
 
     private EveCentral eve = new EveCentral(EveCentral.quickLookBase);
 
     // Updates the item trade sheet with Character order amounts provided by Eve online api keys
-    public void updateCharacterOrderAmount(XSSFSheet sheet) throws Exception {
-        List<CharOrder> orders = eve.unmarshal(eve.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
+    public void updateCharacterOrderAmount(XSSFSheet sheet, List<CharOrder> orders) throws Exception {
         clearUnitsColumn(sheet);
 
         for (CharOrder order : orders) {
             Integer itemId = order.getTypeId();
             String orderRatio = "" + order.getVolRemaining() + "/" + order.getVolEntered();
 
+            // System.out.println("### ItemId: " + itemId);
+
             Row r = getRowFromId(sheet, itemId);
 
             if (r != null) {
+                // System.out.println("Row not null");
                 if (order.getOrderState() == 0) {
                     Cell c = r.getCell(5);
                     if (c == null) {
+                        // System.out.println("Created Cell");
                         c = r.createCell(5);
+                        // System.out.println("Updated new Cell with ratio:" + orderRatio);
+                        c.setCellValue(orderRatio);
+                    } else {
+                        // System.out.println("Updated Cell with ratio:" + orderRatio);
+                        c.setCellValue(orderRatio);
                     }
-                    c.setCellValue(orderRatio);
                 } else if (order.getOrderState() == 2 && r.getCell(5) != null) {
+                    // System.out.println("Removed Cell");
                     r.removeCell(r.getCell(5));
                 }
             } else {
+                // System.out.println("Error");
                 if (!(order.getOrderState() == 2)) {
                     // throw new ItemNotFoundException("Item with id: " + itemId +
                     // " does not exist in spreadsheet");
@@ -43,6 +51,36 @@ public class EveApiImpl {
             }
 
         }
+    }
+
+    public void listMissingOrders(XSSFSheet sheet, List<CharOrder> orders) {
+        for (CharOrder order : orders) {
+            if (order.getOrderState() == 0) {
+                Cell ratioCell = getOrdersRatio(sheet, order.getTypeId());
+                // if (ratioCell == null) {
+                //
+                // System.out.println("Missing Character orders for item: " + order.getTypeId());
+                // }
+            }
+        }
+    }
+
+    public Cell getOrdersRatio(XSSFSheet sheet, int itemId) {
+        for (Row r : sheet) {
+            Cell c = r.getCell(0);
+            if (c != null && c.getStringCellValue().contains(" - ")) {
+                int rowItemId = Integer.parseInt((c.getStringCellValue().substring(c.getStringCellValue().indexOf(" - ") + 3)).trim());
+                if (rowItemId == itemId) {
+                    Cell ratio = r.getCell(5);
+                    if (ratio == null) {
+                        Cell newC = r.createCell(5);
+                        newC.setCellValue("Missing");
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void clearUnitsColumn(XSSFSheet sheet) {

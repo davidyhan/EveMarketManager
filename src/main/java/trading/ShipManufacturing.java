@@ -61,7 +61,7 @@ public class ShipManufacturing {
     }
 
     public void updateItemForSystem(int itemNum, XSSFSheet sheet, Coordinate loc) throws Exception {
-        EveCentralApi query = quick.unmarshal(quick.queryItemBySystem(itemNum, Systems.HED), EveCentralApi.class);
+        EveCentralApi query = quick.unmarshal(quick.queryItemBySystem(itemNum, Systems.UH), EveCentralApi.class);
 
         SellOrders sellOrders = query.getQuick().getSellOrder();
 
