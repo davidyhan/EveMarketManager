@@ -1,3 +1,7 @@
+---IMPORTANT---
+- refactor code to use invTypes excel file instead of out of date Cribba text
+  file
+
 NEW CODE
 - Add method to read excels so there's not the same 5 lines of code for each method
 - Integrate with zkillboard api to pull most used items in test
