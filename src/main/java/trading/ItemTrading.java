@@ -53,12 +53,12 @@ public class ItemTrading {
 
         HashMap<String, Integer> itemMap = parseItemMap(sheet);
 
-//        for (String key : itemMap.keySet()) {
-//            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
-//        }
+        for (String key : itemMap.keySet()) {
+            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
+        }
 
-        //calculateProfitMargins(sheet, 0);
-        //colorProfitMargins(sheet, new Coordinate(3, 2), wb);
+        calculateProfitMargins(sheet, 0);
+        colorProfitMargins(sheet, new Coordinate(3, 2), wb);
         api.updateCharacterOrderAmount(sheet, orders);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
