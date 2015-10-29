@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,6 +43,7 @@ public class ItemTrading {
     public void updateItemSheet(String file, String dbPath) throws Exception {
         // Make sure all the items have their id's bound
         bindItemIds(file, dbPath);
+
         List<CharOrder> orders = quickLook.unmarshal(quickLook.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
 
         FileInputStream fsIP = new FileInputStream(new File(file));
@@ -54,12 +53,12 @@ public class ItemTrading {
 
         HashMap<String, Integer> itemMap = parseItemMap(sheet);
 
-        for (String key : itemMap.keySet()) {
-            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
-        }
+//        for (String key : itemMap.keySet()) {
+//            updateItemPriceForAllSystems(key, itemMap.get(key), sheet);
+//        }
 
-        calculateProfitMargins(sheet, 0);
-        colorProfitMargins(sheet, new Coordinate(3, 1), wb);
+        //calculateProfitMargins(sheet, 0);
+        //colorProfitMargins(sheet, new Coordinate(3, 2), wb);
         api.updateCharacterOrderAmount(sheet, orders);
 
         FileOutputStream output_file = new FileOutputStream(new File(file));
@@ -115,16 +114,16 @@ public class ItemTrading {
                 Double lowestPrice = getLowestSellPrice(sellOrders);
 
                 // TODO Possibly use method for this
-                Cell writeSpot = sheet.getRow(c.getX()).getCell(i + 2);
+                Cell writeSpot = sheet.getRow(c.getX()).getCell(i + 3);
 
                 if (writeSpot == null) {
-                    writeSpot = sheet.getRow(c.getX()).createCell(i + 2);
+                    writeSpot = sheet.getRow(c.getX()).createCell(i + 3);
                     writeSpot.setCellType(Cell.CELL_TYPE_NUMERIC);
                 }
 
                 writeSpot.setCellValue(lowestPrice);
             } else {
-                Cell nullify = sheet.getRow(c.getX()).getCell(c.getY() + 2);
+                Cell nullify = sheet.getRow(c.getX()).getCell(c.getY() + 3);
                 if (nullify != null) {
                     sheet.getRow(c.getX()).removeCell(nullify);
                 }
@@ -141,9 +140,8 @@ public class ItemTrading {
     private Coordinate getItemCoordinate(String itemName, XSSFSheet sheet) {
         for (Row r : sheet) {
             for (Cell c : r) {
-                if (c.getCellType() == Cell.CELL_TYPE_STRING && c.getStringCellValue().contains(" - ")) {
-                    String val = c.getStringCellValue();
-                    String name = val.substring(0, val.indexOf(" - "));
+                if (c.getCellType() == Cell.CELL_TYPE_STRING) {
+                    String name = c.getStringCellValue();
 
                     if (name.equals(itemName)) {
                         return new Coordinate(c.getRowIndex(), c.getColumnIndex());
@@ -160,20 +158,14 @@ public class ItemTrading {
         HashMap<String, Integer> items = new HashMap<String, Integer>();
 
         for (Row r : sheet) {
-            Cell c = r.getCell(0);
+            Cell nameCell = r.getCell(1);
+            Cell idCell = r.getCell(0);
 
             // Makes sure the cell is not null + is type string + does not
             // contains *
-            if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
-                String combined = c.getStringCellValue();
-                int delimiter = combined.indexOf(" - ");
-
-                if (!combined.contains(" - ")) {
-                    throw new ExcelException(combined + " does not contain a - delimiter or is incorrectly formatted");
-                }
-
-                String itemName = combined.substring(0, delimiter).trim();
-                Integer itemId = Integer.parseInt(combined.substring(delimiter + 3).trim());
+            if (nameCell != null && nameCell.getCellType() == Cell.CELL_TYPE_STRING && !nameCell.getStringCellValue().contains("*")) {
+                String itemName = nameCell.getStringCellValue();
+                Integer itemId = (int) idCell.getNumericCellValue();
 
                 items.put(itemName, itemId);
             }
@@ -183,7 +175,6 @@ public class ItemTrading {
     }
 
     public void bindItemIds(String itemTradePath, String itemDBPath) throws Exception {
-        List<String> itemDB = Files.readAllLines(new File(itemDBPath).toPath(), Charset.defaultCharset());
 
         FileInputStream fsIP = new FileInputStream(new File(itemTradePath));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
@@ -193,23 +184,28 @@ public class ItemTrading {
         // Goes through the first column of each row (only item names + id's
         // should be on this row)
         for (Row r : sheet) {
-            Cell c = r.getCell(0);
+            Cell idCell = r.getCell(0);
+            Cell nameCell = r.getCell(1);
 
             // Filters out titles + item who already have id's binded
-            if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING) {
-                String itemName = c.getStringCellValue();
-                if (!itemName.contains("*") && !itemName.contains(" - ")) {
-                    Integer itemId = getItemIdFromDB(itemDB, itemName);
+            if (nameCell != null && nameCell.getCellType() == Cell.CELL_TYPE_STRING && !nameCell.getStringCellValue().contains("*")) {
+                String itemName = nameCell.getStringCellValue();
+                if (idCell == null || idCell.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                    Integer itemId = getItemIdFromDB(itemDBPath, itemName);
 
                     if (itemId == -1) {
+                        wb.close();
                         throw new ExcelException(itemName + " does not exist in the item database");
                     }
 
-                    String newValue = itemName + " - " + itemId;
+                    if (idCell == null) {
+                        idCell = r.createCell(0);
+                        idCell.setCellType(Cell.CELL_TYPE_NUMERIC);
+                    }
 
-                    System.out.println(newValue);
+                    System.out.println("Item :" + itemName + " binded with id: " + itemId);
 
-                    c.setCellValue(newValue);
+                    idCell.setCellValue(itemId);
                 }
             }
         }
@@ -220,18 +216,22 @@ public class ItemTrading {
         wb.close();
     }
 
-    private Integer getItemIdFromDB(List<String> db, String itemName) {
+    private Integer getItemIdFromDB(String itemDBPath, String itemName) throws Exception {
         Integer id = -1;
 
-        for (String s : db) {
-            if (s.contains("    ")) {
-                String formatted = s.substring(s.indexOf("    ")).trim();
-                if (itemName.equals(formatted)) {
-                    id = Integer.parseInt(s.substring(0, s.indexOf("    ")).trim());
-                    return id;
-                }
+        FileInputStream fsIP = new FileInputStream(new File(itemDBPath));
+        XSSFWorkbook wb = new XSSFWorkbook(fsIP);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        fsIP.close();
+
+        for (Row r : sheet) {
+            if (r.getCell(2) != null && r.getCell(2).getCellType() == Cell.CELL_TYPE_STRING && r.getCell(2).getStringCellValue().equals(itemName)) {
+                wb.close();
+                return (int) r.getCell(0).getNumericCellValue();
             }
         }
+
+        wb.close();
 
         return id;
     }
@@ -248,24 +248,24 @@ public class ItemTrading {
 
     private void calculateProfitMarginSingle(XSSFSheet sheet, Row r) {
         // gets the first cell to check if it's a item row
-        Cell c = r.getCell(0);
-        if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*") && c.getStringCellValue().contains(" - ")) {
-            if (r.getCell(2) != null && r.getCell(3) != null) {
-                Double stagingPrice = r.getCell(2).getNumericCellValue();
-                Double amarrPrice = r.getCell(3).getNumericCellValue();
+        Cell c = r.getCell(1);
+        if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
+            if (r.getCell(3) != null && r.getCell(4) != null) {
+                Double stagingPrice = r.getCell(3).getNumericCellValue();
+                Double amarrPrice = r.getCell(4).getNumericCellValue();
 
                 Double profitPercentage = ((stagingPrice - amarrPrice) / amarrPrice) * 100;
 
-                Cell profitCell = r.getCell(1);
+                Cell profitCell = r.getCell(2);
 
                 if (profitCell == null) {
-                    profitCell = r.createCell(1);
+                    profitCell = r.createCell(2);
                 }
 
                 profitCell.setCellType(Cell.CELL_TYPE_NUMERIC);
                 profitCell.setCellValue(profitPercentage);
             } else {
-                Cell margin = r.getCell(1);
+                Cell margin = r.getCell(2);
                 if (margin != null) {
                     r.removeCell(margin);
                 }

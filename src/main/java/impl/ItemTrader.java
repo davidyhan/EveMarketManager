@@ -6,7 +6,7 @@ public class ItemTrader {
 
     public static void main(String[] args) throws Exception {
         String filePath = "C:\\Users\\David\\Dropbox\\Eve\\itemTrader.xlsx";
-        String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\items.txt";
+        String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\invTypes.xlsx";
 
         ItemTrading itemTrading = new ItemTrading();
 
