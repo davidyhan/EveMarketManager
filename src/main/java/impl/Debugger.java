@@ -26,6 +26,7 @@ public class Debugger {
     public static void main(String[] args) throws Exception {
 
         debugCharacterOrders();
+        // printCharacterOrders();
         // setCellValue();
     }
 
@@ -37,7 +38,7 @@ public class Debugger {
 
         EveApiImpl charOrders = new EveApiImpl();
         List<CharOrder> orders = eve.unmarshal(eve.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
-        // charOrders.updateCharacterOrderAmount(sheet);
+        // charOrders.updateCharacterOrderAmount(sheet, orders);
 
         charOrders.listMissingOrders(sheet, orders);
 
@@ -51,6 +52,16 @@ public class Debugger {
 
         System.out.println("FIN");
 
+    }
+
+    public static void printCharacterOrders() throws Exception {
+        EveCentral quickLook = new EveCentral(EveCentral.quickLookBase);
+
+        List<CharOrder> orders = quickLook.unmarshal(quickLook.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
+
+        for (CharOrder o : orders) {
+            System.out.println(o.toString());
+        }
     }
 
     public static void setCellValue() throws Exception {

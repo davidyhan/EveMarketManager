@@ -23,7 +23,7 @@ public class EveApiImpl {
             if (r != null) {
                 if (order.getOrderState() == 0) {
                     Cell c = r.getCell(6);
-                    
+
                     if (c == null) {
                         c = r.createCell(6);
                         c.setCellValue(orderRatio);
@@ -47,7 +47,6 @@ public class EveApiImpl {
             if (order.getOrderState() == 0) {
                 Cell ratioCell = getOrdersRatio(sheet, order.getTypeId(), order);
                 if (ratioCell == null) {
-
                     System.out.println("Missing Character orders for item: " + order.getTypeId());
                 }
             }
@@ -56,8 +55,12 @@ public class EveApiImpl {
 
     public Cell getOrdersRatio(XSSFSheet sheet, int itemId, CharOrder order) {
         for (Row r : sheet) {
-            Cell c = r.getCell(1);
-            if (c != null) {
+            if (r.getCell(6) != null) {
+                return r.getCell(6);
+            }
+
+            Cell c = r.getCell(2);
+            if (c != null && r.getCell(0) != null && r.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC) {
                 int rowItemId = (int) r.getCell(0).getNumericCellValue();
                 if (rowItemId == itemId) {
                     Cell ratio = r.getCell(6);
@@ -84,7 +87,7 @@ public class EveApiImpl {
 
     private Row getRowFromId(XSSFSheet sheet, Integer id) {
         for (Row r : sheet) {
-            if (r.getCell(1) != null && r.getCell(1).getStringCellValue().equals(id.toString())) {
+            if (r.getCell(0) != null && r.getCell(0).getCellType() == Cell.CELL_TYPE_NUMERIC && r.getCell(0).getNumericCellValue() == id) {
                 return r;
             }
         }
