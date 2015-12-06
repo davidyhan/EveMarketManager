@@ -34,17 +34,16 @@ public class ShipManufacturing {
 
         for (Row r : sheet) {
             if (r.getRowNum() > start.getX()) {
-                Cell c = r.getCell(0);
+                Cell c = r.getCell(1);
 
                 if (c != null && c.getCellType() == Cell.CELL_TYPE_STRING && !c.getStringCellValue().contains("*")) {
-                    String cellVal = c.getStringCellValue();
-                    System.out.println(cellVal);
+                    String itemName = c.getStringCellValue();
 
-                    String itemName = cellVal.substring(0, cellVal.indexOf(" - "));
-                    Integer itemNum = Integer.parseInt(cellVal.substring(cellVal.indexOf(" - ") + 3));
+                    Integer itemNum = (int) r.getCell(0).getNumericCellValue();
+                    System.out.println(itemName + " - " + itemNum);
 
-                    updateManufactureCosts(sheet, itemName, new Coordinate(r.getRowNum(), 3), evaluator);
-                    updateItemForSystem(itemNum, sheet, new Coordinate(r.getRowNum(), 2));
+                    updateManufactureCosts(sheet, itemName, new Coordinate(r.getRowNum(), 4), evaluator);
+                    updateItemForSystem(itemNum, sheet, new Coordinate(r.getRowNum(), 3));
                 }
             }
         }
@@ -139,31 +138,30 @@ public class ShipManufacturing {
 
         switch (mineral) {
             case Items.TRITANIUM:
-                price = sheet.getRow(1).getCell(1).getNumericCellValue();
+                price = sheet.getRow(1).getCell(2).getNumericCellValue();
                 break;
             case Items.PYERITE:
-                price = sheet.getRow(2).getCell(1).getNumericCellValue();
+                price = sheet.getRow(2).getCell(2).getNumericCellValue();
                 break;
             case Items.MEXALLON:
-                price = sheet.getRow(3).getCell(1).getNumericCellValue();
+                price = sheet.getRow(3).getCell(2).getNumericCellValue();
                 break;
             case Items.ISOGEN:
-                price = sheet.getRow(4).getCell(1).getNumericCellValue();
+                price = sheet.getRow(4).getCell(2).getNumericCellValue();
                 break;
             case Items.NOCXIUM:
-                price = sheet.getRow(5).getCell(1).getNumericCellValue();
+                price = sheet.getRow(5).getCell(2).getNumericCellValue();
                 break;
             case Items.ZYDRINE:
-                price = sheet.getRow(6).getCell(1).getNumericCellValue();
+                price = sheet.getRow(6).getCell(2).getNumericCellValue();
                 break;
             case Items.MEGACYTE:
-                price = sheet.getRow(7).getCell(1).getNumericCellValue();
+                price = sheet.getRow(7).getCell(2).getNumericCellValue();
                 break;
             case Items.MORPHITE:
-                price = sheet.getRow(8).getCell(1).getNumericCellValue();
+                price = sheet.getRow(8).getCell(2).getNumericCellValue();
                 break;
         }
         return price;
     }
-
 }

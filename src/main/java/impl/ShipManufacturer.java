@@ -13,7 +13,7 @@ public class ShipManufacturer {
         ItemTrading items = new ItemTrading();
 
         String file = "C:\\Users\\David\\Dropbox\\Eve\\ShipManufacturing.xlsx";
-        String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\items.txt";
+        String dbPath = "C:\\Users\\David\\Dropbox\\Eve\\invTypes.xlsx";
 
         minerals.updateMineralPrices(file, Systems.JITA);
         items.bindItemIds(file, dbPath);
