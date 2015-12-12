@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -33,18 +36,31 @@ public class ItemTrading {
     private ArrayList<Integer> systems = new ArrayList<Integer>();
     private EveApiImpl api = new EveApiImpl();
 
-    private final static String NarwhalApi = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=4413855&vCode=mXeJY5fSA9YKp16zq0kgXTeYvjCwaAHoVKhDOjLK8x3iJ1su2Q9zENaSWY7vmEnZ";
+    private String characterApi1 = "https://api.eveonline.com/char/MarketOrders.xml.aspx?keyID=";
+    private String characterApi2 = "&vCode=";
+    private String narwhalApi = "";
 
     public ItemTrading() {
         systems.add(Systems.UH);
         systems.add(Systems.JITA);
+
+        // Generates a URL for pulling character orders
+        Configuration prop = null;
+        try {
+            prop = new PropertiesConfiguration("src/main/resources/ApiKey.properties");
+        } catch (ConfigurationException e) {
+            System.out.println("Error pulling property file: " + e.getMessage());
+            System.exit(0);
+        }
+
+        narwhalApi = characterApi1 + prop.getProperty("KeyId") + characterApi2 + prop.getProperty("VerificationCode");
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {
         // Make sure all the items have their id's bound
         bindItemIds(file, dbPath);
 
-        List<CharOrder> orders = quickLook.unmarshal(quickLook.queryEveCentralUrl(NarwhalApi), EveApi.class).getResult().getRowset().getListOrders();
+        List<CharOrder> orders = quickLook.unmarshal(quickLook.queryEveCentralUrl(narwhalApi), EveApi.class).getResult().getRowset().getListOrders();
 
         FileInputStream fsIP = new FileInputStream(new File(file));
         XSSFWorkbook wb = new XSSFWorkbook(fsIP);
@@ -161,8 +177,7 @@ public class ItemTrading {
             Cell nameCell = r.getCell(1);
             Cell idCell = r.getCell(0);
 
-            // Makes sure the cell is not null + is type string + does not
-            // contains *
+            // Makes sure the cell is not null + is type string + does not contains *
             if (nameCell != null && nameCell.getCellType() == Cell.CELL_TYPE_STRING && !nameCell.getStringCellValue().contains("*")) {
                 String itemName = nameCell.getStringCellValue();
                 Integer itemId = (int) idCell.getNumericCellValue();
@@ -181,8 +196,7 @@ public class ItemTrading {
         XSSFSheet sheet = wb.getSheetAt(0);
         fsIP.close();
 
-        // Goes through the first column of each row (only item names + id's
-        // should be on this row)
+        // Goes through the first column of each row (only item names + id's should be on this row)
         for (Row r : sheet) {
             Cell idCell = r.getCell(0);
             Cell nameCell = r.getCell(1);
@@ -236,8 +250,7 @@ public class ItemTrading {
         return id;
     }
 
-    // Calculates the profit margins for items between Staging system (Currently
-    // U-H) and Amarr
+    // Calculates the profit margins for items between Staging system (Currently U-H) and Jita
     public void calculateProfitMargins(XSSFSheet sheet, int start) throws IOException {
         for (Row r : sheet) {
             if (r.getRowNum() >= start) {
