@@ -19,11 +19,11 @@ import quicklook.SellOrders;
 
 public class ShipManufacturing {
     EveCentral quick = new EveCentral(EveCentral.quickLookBase);
-    ItemTrading items = null;
+    ItemTrading items = new ItemTrading();
     Coordinate minerals = new Coordinate(0, 0);
-    
-    public ShipManufacturing(){
-        
+
+    public ShipManufacturing() {
+
     }
 
     public void updateShipPrices(String file) throws Exception {
