@@ -1,7 +1,5 @@
 package trading;
 
-import ids.Items;
-import ids.Systems;
 import impl.EveCentral;
 
 import java.io.File;
@@ -14,6 +12,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import properties.Items;
+import properties.Systems;
 import quicklook.EveCentralApi;
 import quicklook.SellOrders;
 

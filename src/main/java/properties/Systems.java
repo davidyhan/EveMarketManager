@@ -1,4 +1,4 @@
-package ids;
+package properties;
 
 import java.util.HashMap;
 

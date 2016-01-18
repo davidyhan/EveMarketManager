@@ -1,6 +1,5 @@
 package trading;
 
-import ids.Systems;
 import impl.EveApiImpl;
 import impl.EveCentral;
 
@@ -13,9 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -24,6 +20,8 @@ import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import properties.Properties;
+import properties.Systems;
 import quicklook.EveCentralApi;
 import quicklook.SellOrders;
 import EveApi.CharOrder;
@@ -44,16 +42,7 @@ public class ItemTrading {
         systems.add(Systems.UH);
         systems.add(Systems.JITA);
 
-        // Generates a URL for pulling character orders
-        Configuration prop = null;
-        try {
-            prop = new PropertiesConfiguration("src/main/resources/ApiKey.properties");
-        } catch (ConfigurationException e) {
-            System.out.println("Error pulling property file: " + e.getMessage());
-            System.exit(0);
-        }
-
-        narwhalApi = characterApi1 + prop.getProperty("KeyId") + characterApi2 + prop.getProperty("VerificationCode");
+        narwhalApi = characterApi1 + Properties.API_KEY_ID + characterApi2 + Properties.API_VERIFICATION_CODE;
     }
 
     public void updateItemSheet(String file, String dbPath) throws Exception {

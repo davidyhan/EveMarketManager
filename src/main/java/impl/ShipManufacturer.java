@@ -1,6 +1,6 @@
 package impl;
 
-import ids.Systems;
+import properties.Systems;
 import trading.ItemTrading;
 import trading.Minerals;
 import trading.ShipManufacturing;
