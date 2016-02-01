@@ -3,22 +3,15 @@ package marketstat;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@SuppressWarnings("restriction")
 @XmlRootElement(name = "sell")
 public class MSSell {
 
     private int volume;
-
     private double averagePrice;
-
     private double maxPrice;
-
     private double minPrice;
-
     private double standardDeviation;
-
     private double medianPrice;
-
     private double percentile;
 
     public int getVolume() {

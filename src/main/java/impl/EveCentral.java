@@ -14,7 +14,6 @@ import javax.xml.bind.Unmarshaller;
 
 import marketstat.MarketApi;
 
-@SuppressWarnings("restriction")
 public class EveCentral {
     public static final String quickLookBase = "http://api.eve-central.com/api/quicklook";
     public static final String marketStatBase = "http://api.eve-central.com/api/marketstat";

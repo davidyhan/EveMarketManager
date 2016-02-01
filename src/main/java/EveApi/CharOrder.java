@@ -3,7 +3,6 @@ package EveApi;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@SuppressWarnings("restriction")
 @XmlRootElement(name = "row")
 public class CharOrder {
 
